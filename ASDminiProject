@@ -1,0 +1,98 @@
+class Device:
+    def __init__(self, nama, warna, brand, harga, stok):
+        self.nama = nama
+        self.warna = warna
+        self.brand = brand
+        self.harga = harga
+        self.stok = stok
+    
+    def display_info(self):
+        print(f"Nama device: {self.nama}")
+        print(f"Brand device: {self.brand}")
+        print(f"Warna device: {self.warna}")
+        print(f"Harga device: {self.harga}")
+        print(f"Stok device: {self.stok}")
+
+class Tokovape:
+    def __init__(self, nama, alamat, jam_buka_dantutup):
+        self.nama = nama
+        self.alamat = alamat
+        self.jam_buka_dantutup = jam_buka_dantutup
+        self.devices = []
+
+    def tambahkan_device(self, device):
+        self.devices.append(device)
+        print(f"Device {device.nama} telah ditambahkan di TokoVape.")
+
+    def lihat_devices(self):
+        print("Daftar Devices di TokoVape:")
+        for device in self.devices:
+            device.display_info()
+
+    def cari_device(self, nama):
+        for device in self.devices:
+            if device.nama == nama:
+                return device
+        return None
+
+    def update_device(self, nama, harga=None, stok=None):
+        device = self.cari_device(nama)
+        if device:
+            if harga is not None:
+                device.harga = harga
+            if stok is not None:
+                device.stok = stok
+            print(f"Informasi Device {nama} telah diperbarui.")
+        else:
+            print(f"Device {nama} tidak ditemukan.")
+
+    def hapus_device(self, nama):
+        device = self.cari_device(nama)
+        if device:
+            self.devices.remove(device)
+            print(f"Device {nama} telah dihapus dari TokoVape.")
+        else:
+            print(f"Device {nama} tidak ditemukan.")
+
+if __name__ == "__main__":
+    toko_vape = Tokovape("TokoVape Barokah", "Jl. Raya No. 123", "08:00 - 22:00")
+    
+    while True:
+        print("\nPilih operasi:")
+        print("1. Tambah Device")
+        print("2. Lihat Devices")
+        print("3. Update Device")
+        print("4. Hapus Device")
+        print("5. Keluar")
+
+        choice = input("Masukkan pilihan (1/2/3/4/5): ")
+
+        if choice == "1":
+            nama = input("Masukkan nama device: ")
+            warna = input("Masukkan warna device: ")
+            brand = input("Masukkan brand device: ")
+            harga = float(input("Masukkan harga device: "))
+            stok = int(input("Masukkan stok device: "))
+            new_device = Device(nama, warna, brand, harga, stok)
+            toko_vape.tambahkan_device(new_device)
+
+        elif choice == "2":
+            toko_vape.lihat_devices()
+
+        elif choice == "3":
+            nama = input("Masukkan nama device yang ingin diperbarui: ")
+            harga = float(input("Masukkan harga baru: "))
+            stok = int(input("Masukkan stok baru: "))
+            toko_vape.update_device(nama, harga, stok)
+
+        elif choice == "4":
+            nama = input("Masukkan nama device yang ingin dihapus: ")
+            toko_vape.hapus_device(nama)
+
+        elif choice == "5":
+            print("Terima kasih! Sampai jumpa.")
+            break
+
+        else:
+            print("Pilihan tidak valid. Silakan coba lagi.")
+
