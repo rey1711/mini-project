@@ -1,5 +1,3 @@
-import math
-
 class Device:
     def __init__(self, nama, warna, brand, harga, stok):
         self.nama = nama
@@ -105,34 +103,97 @@ class Tokovape:
             current.device.display_info()
             current = current.next
 
-    def jump_search(self, key, value):
+    def merge_sort(self, arr, key=lambda x: x, ascending=True):
+        if len(arr) <= 1:
+            return arr
+        mid = len(arr) // 2
+        left_half = arr[:mid]
+        right_half = arr[mid:]
+        left_half = self.merge_sort(left_half, key, ascending)
+        right_half = self.merge_sort(right_half, key, ascending)
+        return self.merge(left_half, right_half, key, ascending)
+
+    def merge(self, left, right, key, ascending):
+        result = []
+        left_index, right_index = 0, 0
+        while left_index < len(left) and right_index < len(right):
+            if ascending:
+                if key(left[left_index]) < key(right[right_index]):
+                    result.append(left[left_index])
+                    left_index += 1
+                else:
+                    result.append(right[right_index])
+                    right_index += 1
+            else:
+                if key(left[left_index]) > key(right[right_index]):
+                    result.append(left[left_index])
+                    left_index += 1
+                else:
+                    result.append(right[right_index])
+                    right_index += 1
+        result.extend(left[left_index:])
+        result.extend(right[right_index:])
+        return result
+
+    def sort_devices(self, key1, key2, ascending=True):
+        if key1 not in ["harga", "stok"] or key2 not in ["harga", "stok"]:
+            print("Kunci pengurutan tidak valid.")
+            return
+        
+        # Mendapatkan semua perangkat dalam linked list ke dalam sebuah list
+        devices_list = []
+        current = self.head
+        while current:
+            devices_list.append(current.device)
+            current = current.next
+        
+        # Menggunakan merge sort untuk mengurutkan list perangkat
+        sorted_devices = self.merge_sort(devices_list, key=lambda x: (getattr(x, key1), getattr(x, key2)), ascending=ascending)
+        
+        print(f"Daftar Devices di TokoVape (Diurutkan berdasarkan {key1} dan {key2}):")
+        for device in sorted_devices:
+            device.display_info()
+
+    def jump_search(self, key):
         if not self.head:
             print("List kosong.")
-            return -1
-        step = int(math.sqrt(len(self)))
-        prev = None
+            return None
         current = self.head
-        while current and current.device.__dict__[key] < value:
+        n = 0
+        while current:
+            if current.device.nama == key:
+                print(f"Device dengan nama {key} ditemukan.")
+                return current.device
+            elif current.device.nama < key:
+                current = current.next
+                n += 1
+            else:
+                break
+
+        # Perform jump search
+        jump = int(n ** 0.5)  # Jump step size
+        index = 0
+        prev = None
+        while index < n:
             prev = current
-            for _ in range(step):
+            for _ in range(jump):
                 if current.next:
                     current = current.next
                 else:
                     break
-        while prev and prev.device.__dict__[key] < value:
-            prev = prev.next
-        if prev and prev.device.__dict__[key] == value:
-            return prev.device
-        print(f"Device dengan {key} {value} tidak ditemukan.")
-        return -1
+                index += 1
+            if current.device.nama >= key:
+                break
 
-    def __len__(self):
-        length = 0
-        current = self.head
-        while current:
-            length += 1
-            current = current.next
-        return length
+        # Perform linear search in the current block
+        while prev:
+            if prev.device.nama == key:
+                print(f"Device dengan nama {key} ditemukan.")
+                return prev.device
+            prev = prev.next
+
+        print(f"Device dengan nama {key} tidak ditemukan.")
+        return None
 
 if __name__ == "__main__":
     toko_vape = Tokovape("TokoVape Barokah", "Jl. Raya No. 123", "08:00 - 22:00")
@@ -146,10 +207,11 @@ if __name__ == "__main__":
         print("5. Hapus Device di Akhir")
         print("6. Hapus Device di Antara")
         print("7. Lihat Devices")
-        print("8. Cari Device")
-        print("9. Keluar")
+        print("8. Sorting Devices")
+        print("9. Jump Search Device")
+        print("10. Keluar")
 
-        choice = input("Masukkan pilihan (1/2/3/4/5/6/7/8/9): ")
+        choice = input("Masukkan pilihan (1/2/3/4/5/6/7/8/9/10): ")
 
         if choice == "1":
             nama = input("Masukkan nama device: ")
@@ -193,16 +255,19 @@ if __name__ == "__main__":
             toko_vape.lihat_devices()
 
         elif choice == "8":
-            key = input("Masukkan kunci pencarian (nama/harga/stok): ")
-            value = input("Masukkan nilai pencarian: ")
-            result = toko_vape.jump_search(key, value)
-            if result != -1:
-                print("Device ditemukan:")
-                result.display_info()
+            key1 = input("Masukkan kunci pengurutan pertama (harga/stok): ")
+            key2 = input("Masukkan kunci pengurutan kedua (harga/stok): ")
+            ascending = input("Urutkan secara ascending? (y/n): ").lower() == "y"
+            toko_vape.sort_devices(key1, key2, ascending)
 
         elif choice == "9":
+            nama_device = input("Masukkan nama device yang ingin dicari: ")
+            toko_vape.jump_search(nama_device)
+
+        elif choice == "10":
             print("Terima kasih! Sampai jumpa.")
             break
 
         else:
             print("Pilihan tidak valid. Silakan coba lagi.")
+     
